@@ -1,38 +1,50 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ThirdPersonFollow : MonoBehaviour {
-    public Transform target;
-    public float damping = 6.0f;
-    public bool smooth = true;
-    public float minDistance = 10.0f;
-    public float offset = 1, offsety = 1;
-    public float speed = 1.0f;
+public class ThirdPersonCamera : MonoBehaviour
+{
+
+    public GameObject Car;
+
+    private Vector3 offset;
+    private Transform target;
+    private float distance = 7.0f;
+    private float height = 3.0f;
+    private float damping = 5.0f;
+    public bool smoothRotation = true;
+    public bool followCar = true;
+    public float rotationDamping = 10.0f;
+
     // Use this for initialization
-    void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void LateUpdate () {
-        if (smooth)
+    void Start()
+    {
+        target = Car.transform;
+    }
+
+    // Update is called once per frame
+    void LateUpdate()
+    {
+        Vector3 newPosition;
+        if (followCar)
         {
-            //Camforward, lookat, up=yaxis
-            Quaternion rotation = Quaternion.LookRotation(target.position - transform.position);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * damping);
+            newPosition = target.TransformPoint(0, height, -distance);
         }
         else
         {
-            transform.rotation = Quaternion.FromToRotation(-Vector3.forward, (new Vector3(target.position.x, target.position.y, target.position.z) - transform.position).normalized);
-            float distance = Vector3.Distance(target.position, transform.position);
+            newPosition = target.TransformPoint(0, height, distance);
         }
-        Vector3 cameraOffset = target.forward * offset;
-        //Vector3 newPos = new Vector3(target.position.x - offsetx, target.position.y - offsety, target.position.z - offsetz);
-        Vector3 newPos = target.position - cameraOffset;
-        //set height 
-        newPos.y += offsety;
-        //transform.position = newPos;
-        transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime * speed);
+        transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * damping);
 
+        if (smoothRotation)
+        {
+            Quaternion wantedRotation = Quaternion.LookRotation(target.position - transform.position, target.up);
+            transform.rotation = Quaternion.Slerp(transform.rotation, wantedRotation, Time.deltaTime * rotationDamping);
+        }
+        else
+        {
+            transform.LookAt(target, target.up);
+        }
     }
+
+
 }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GM : MonoBehaviour {
+public class GameM : MonoBehaviour {
 
     public GameObject[] objects;
     private int currentActiveObject;
